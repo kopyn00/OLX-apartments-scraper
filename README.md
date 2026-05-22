@@ -22,9 +22,11 @@ Używa publicznego API OLX, śledzi już widziane ogłoszenia lokalnie i powiada
 
 ```
 OLX-apartments-scraper/
-├── main.py            # Logika aplikacji
-├── requirements.txt   # Zależności
-├── .env.example       # Przykładowa konfiguracja (skopiuj do .env)
+├── main.py               # Logika aplikacji
+├── requirements.txt      # Zależności
+├── .env.example          # Przykładowa konfiguracja (skopiuj do .env)
+├── start.sh              # Skrypt uruchomieniowy (Linux / Raspberry Pi)
+├── olx-scraper.service   # Plik systemd do autostartu
 ├── .gitignore
 └── README.md
 ```
@@ -107,9 +109,42 @@ Swój `TELEGRAM_CHAT_ID` znajdziesz wysyłając `/start` do [@userinfobot](https
 
 ## Uruchomienie
 
-```bash
+### Windows
+
+```powershell
+.venv\Scripts\Activate.ps1
 python main.py
 ```
+
+### Linux / Raspberry Pi
+
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+Skrypt automatycznie tworzy virtualenv i instaluje zależności przy pierwszym uruchomieniu.
+
+### Autostart na Raspberry Pi (systemd)
+
+```bash
+sudo cp olx-scraper.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable olx-scraper
+sudo systemctl start olx-scraper
+```
+
+Jeśli Twój użytkownik nie nazywa się `pi`, zmień `User=` i ścieżki w `olx-scraper.service`.
+
+Logi na żywo:
+
+```bash
+journalctl -u olx-scraper -f
+```
+
+---
+
+### Ogólne
 
 Przy pierwszym uruchomieniu aktualne ogłoszenia są wysyłane i zapisywane jako punkt startowy. Kolejne uruchomienia wysyłają tylko nowe.
 

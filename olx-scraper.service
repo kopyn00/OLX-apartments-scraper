@@ -1,0 +1,15 @@
+[Unit]
+Description=OLX Apartments Scraper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/OLX-apartments-scraper
+ExecStart=/home/pi/OLX-apartments-scraper/.venv/bin/python main.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
