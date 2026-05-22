@@ -1,75 +1,62 @@
-# OLX-apartments-scraper
+# OLX Apartments Scraper
 
-A simple Python script that monitors OLX listings (e.g. apartments in Wrocław) and sends **newly refreshed offers** directly to a Discord channel via a webhook.
+Monitoruje ogłoszenia na OLX i wysyła nowe oferty na **Discord** i/lub **Telegram**.
 
-The script uses the public OLX API endpoint, filters offers refreshed *today*, remembers already-seen listings locally, and notifies only about new ones.
-
----
-
-## Features
-
-* Fetches apartment listings from OLX using their JSON API
-* Filters offers refreshed on the current day
-* Detects only **new** listings (no duplicates)
-* Sends formatted embeds to Discord via webhook
-* Configurable polling interval
-* Local persistence using `history.json`
-* Safe configuration via `.env`
+Używa publicznego API OLX, śledzi już widziane ogłoszenia lokalnie i powiadamia tylko o nowych.
 
 ---
 
-## Project structure
+## Funkcje
+
+- Pobiera ogłoszenia przez JSON API OLX
+- Wykrywa tylko **nowe** ogłoszenia (bez duplikatów)
+- Powiadomienia na **Discord** (embed) i/lub **Telegram**
+- Kanały włączane/wyłączane osobno flagami w `.env`
+- Wyszukiwanie w promieniu od wybranego miasta (`DIST` + `STRATEGY`)
+- Wszystkie filtry (cena, metraż, pokoje, typ budynku) konfigurowane w `.env`
+- Lokalny cache w `history.json`
+
+---
+
+## Struktura projektu
 
 ```
 OLX-apartments-scraper/
-├── main.py            # Main application logic
-├── requirements.txt   # Python dependencies
-├── README.md          # Project documentation
-├── .env               # Local configuration (ignored by git)
-├── history.json       # Seen offers cache (ignored by git)
+├── main.py            # Logika aplikacji
+├── requirements.txt   # Zależności
+├── .env.example       # Przykładowa konfiguracja (skopiuj do .env)
 ├── .gitignore
-└── .venv/             # Virtual environment (ignored by git)
+└── README.md
 ```
 
 ---
 
-## Requirements
+## Wymagania
 
-* Python **3.10+**
-* Discord webhook URL
+- Python 3.10+
+- Discord Webhook URL i/lub Telegram Bot Token
 
 ---
 
-## Installation
-
-### 1. Clone the repository
+## Instalacja
 
 ```bash
 git clone https://github.com/your-username/olx-apartments-scraper.git
 cd olx-apartments-scraper
-```
-
-### 2. Create virtual environment
-
-```bash
 python -m venv .venv
 ```
 
-Activate it:
-
-**Linux / macOS**
-
-```bash
-source .venv/bin/activate
-```
-
-**Windows (PowerShell)**
+Aktywuj środowisko:
 
 ```powershell
+# Windows
 .venv\Scripts\Activate.ps1
 ```
 
-### 3. Install dependencies
+```bash
+# Linux / macOS
+source .venv/bin/activate
+```
 
 ```bash
 pip install -r requirements.txt
@@ -77,52 +64,69 @@ pip install -r requirements.txt
 
 ---
 
-## Configuration
+## Konfiguracja
 
-Create a `.env` file in the project root:
+Skopiuj `.env.example` do `.env` i uzupełnij:
+
+```bash
+cp .env.example .env
+```
+
+### Lokalizacja
+
+| Parametr | Opis |
+| --- | --- |
+| `CITY_ID` | ID miasta z OLX (znajdziesz w źródle strony szukając `city_id=`) |
+| `REGION_ID` | ID regionu (województwa) |
+| `DIST` | Promień wyszukiwania w km |
+| `STRATEGY` | Ustaw `extended_distance` — wymagane gdy używasz `DIST` |
+
+### Filtry
+
+| Parametr | Przykład | Opis |
+| --- | --- | --- |
+| `PRICE_FROM` / `PRICE_TO` | `2000` / `3500` | Zakres ceny (PLN) |
+| `AREA_FROM` / `AREA_TO` | `40` / `70` | Zakres powierzchni (m²) |
+| `ROOMS` | `two,three,four` | Liczba pokoi (`one` `two` `three` `four`) |
+| `BUILTTYPES` | `blok,kamienica` | Typ budynku (puste = bez filtra) |
+
+### Powiadomienia
 
 ```env
+DISCORD_ENABLED=true
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/XXX/YYY
-POLL_SECONDS=60
-SEEN_FILE=history.json
+
+TELEGRAM_ENABLED=true
+TELEGRAM_BOT_TOKEN=123456789:AAH-xxx
+TELEGRAM_CHAT_ID=123456789
 ```
 
-Optional:
-
-```env
-OLX_URL=https://www.olx.pl/api/v1/offers/?...
-```
-
-If `OLX_URL` is not provided, a default Wrocław apartments query is used.
+Swój `TELEGRAM_CHAT_ID` znajdziesz wysyłając `/start` do [@userinfobot](https://t.me/userinfobot).
 
 ---
 
-## Usage
-
-Run the script:
+## Uruchomienie
 
 ```bash
 python main.py
 ```
 
-On first run, existing offers are stored as history. New or refreshed listings will be sent to Discord automatically.
+Przy pierwszym uruchomieniu aktualne ogłoszenia są wysyłane i zapisywane jako punkt startowy. Kolejne uruchomienia wysyłają tylko nowe.
+
+Żeby zresetować historię:
+
+```bash
+rm history.json
+```
 
 ---
 
-## Notes
+## Zastrzeżenie
 
-* Discord allows **max 10 embeds per message** (handled automatically)
-* Only offers refreshed *today* are considered
-* `history.json` is reset manually if needed
+Projekt do użytku prywatnego i edukacyjnego. OLX może zmienić lub ograniczyć dostęp do API w dowolnym momencie.
 
 ---
 
-## Disclaimer
+## Licencja
 
-This project is for **educational and personal use only**. OLX is a third‑party service and may change or restrict API access at any time.
-
----
-
-## License
-
-MIT License
+MIT
