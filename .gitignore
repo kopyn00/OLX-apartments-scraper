@@ -139,6 +139,9 @@ celerybeat.pid
 
 # App data
 history.json
+
+# Claude
+.claude/
 .envrc
 .venv
 env/
